@@ -1,0 +1,4 @@
+github.com/edlitmus/yaml v2.1.0+incompatible h1:Ck80DevRJ9k+Hc9l3J/ySL+mIDloi/vRXbdk7vVUUCY=
+github.com/edlitmus/yaml v2.1.0+incompatible/go.mod h1:rPNApkFt0wSFaW78MVajUjdtXPM5dAXutz+NTJhCXUE=
+gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405 h1:yhCVgyC4o1eVCa2tZl7eS0r+SDo693bJlVdllGtEeKM=
+gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405/go.mod h1:Co6ibVJAznAaIkqp8huTwlJQCZ016jof/cbN4VW5Yz0=

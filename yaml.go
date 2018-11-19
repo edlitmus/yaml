@@ -140,6 +140,8 @@ func unmarshal(in []byte, out interface{}, strict bool) (err error) {
 	p := newParser(in)
 	defer p.destroy()
 	node := p.parse()
+	fmt.Printf("P: %#v\n", p)
+	fmt.Printf("NODE: %#v\n", node)
 	if node != nil {
 		v := reflect.ValueOf(out)
 		if v.Kind() == reflect.Ptr && !v.IsNil() {
