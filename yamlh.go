@@ -523,75 +523,43 @@ type yaml_alias_data_t struct {
 // All members are internal. Manage the structure using the
 // yaml_parser_ family of functions.
 type yaml_parser_t struct {
-
-	// Error handling
-
-	error yaml_error_type_t // Error type.
-
-	problem string // Error description.
-
-	// The byte about which the problem occurred.
-	problem_offset int
-	problem_value  int
-	problem_mark   yaml_mark_t
-
-	// The error context.
-	context      string
-	context_mark yaml_mark_t
-
-	// Reader stuff
-
-	read_handler yaml_read_handler_t // Read handler.
-
-	input_reader io.Reader // File input data.
-	input        []byte    // String input data.
-	input_pos    int
-
-	eof bool // EOF flag
-
-	buffer     []byte // The working buffer.
-	buffer_pos int    // The current position of the buffer.
-
-	unread int // The number of unread characters in the buffer.
-
-	raw_buffer     []byte // The raw buffer.
-	raw_buffer_pos int    // The current position of the buffer.
-
-	encoding yaml_encoding_t // The input encoding.
-
-	offset int         // The offset of the current position (in bytes).
-	mark   yaml_mark_t // The mark of the current position.
-
-	// Scanner stuff
-
-	stream_start_produced bool // Have we started to scan the input stream?
-	stream_end_produced   bool // Have we reached the end of the input stream?
-
-	flow_level int // The number of unclosed '[' and '{' indicators.
-
-	tokens          []yaml_token_t // The tokens queue.
-	tokens_head     int            // The head of the tokens queue.
-	tokens_parsed   int            // The number of tokens fetched from the queue.
-	token_available bool           // Does the tokens queue contain a token ready for dequeueing.
-
-	indent  int   // The current indentation level.
-	indents []int // The indentation levels stack.
-
-	simple_key_allowed bool                // May a simple key occur at the current position?
-	simple_keys        []yaml_simple_key_t // The stack of simple keys.
-
-	// Parser stuff
-
-	state          yaml_parser_state_t    // The current parser state.
-	states         []yaml_parser_state_t  // The parser states stack.
-	marks          []yaml_mark_t          // The stack of marks.
-	tag_directives []yaml_tag_directive_t // The list of TAG directives.
-
-	// Dumper stuff
-
-	aliases []yaml_alias_data_t // The alias data.
-
-	document *yaml_document_t // The currently parsed document.
+	raw_buffer            []byte
+	mark                  yaml_mark_t
+	indents               []int
+	states                []yaml_parser_state_t
+	problem_mark          yaml_mark_t
+	tag_directives        []yaml_tag_directive_t
+	context_mark          yaml_mark_t
+	tokens                []yaml_token_t
+	simple_keys           []yaml_simple_key_t
+	input                 []byte
+	marks                 []yaml_mark_t
+	aliases               []yaml_alias_data_t
+	buffer                []byte
+	context               string
+	problem               string
+	input_reader          io.Reader
+	error                 yaml_error_type_t
+	encoding              yaml_encoding_t
+	raw_buffer_pos        int
+	unread                int
+	buffer_pos            int
+	input_pos             int
+	flow_level            int
+	read_handler          yaml_read_handler_t
+	tokens_head           int
+	tokens_parsed         int
+	problem_value         int
+	indent                int
+	problem_offset        int
+	state                 yaml_parser_state_t
+	offset                int
+	document              *yaml_document_t
+	token_available       bool
+	stream_end_produced   bool
+	stream_start_produced bool
+	eof                   bool
+	simple_key_allowed    bool
 }
 
 // Emitter Definitions
@@ -643,96 +611,62 @@ const (
 // All members are internal.  Manage the structure using the @c yaml_emitter_
 // family of functions.
 type yaml_emitter_t struct {
-
-	// Error handling
-
-	error   yaml_error_type_t // Error type.
-	problem string            // Error description.
-
-	// Writer stuff
-
-	write_handler yaml_write_handler_t // Write handler.
-
-	output_buffer *[]byte   // String output data.
-	output_writer io.Writer // File output data.
-
-	buffer     []byte // The working buffer.
-	buffer_pos int    // The current position of the buffer.
-
-	raw_buffer     []byte // The raw buffer.
-	raw_buffer_pos int    // The current position of the buffer.
-
-	encoding yaml_encoding_t // The stream encoding.
-
-	// Emitter stuff
-
-	canonical   bool         // If the output is in the canonical style?
-	best_indent int          // The number of indentation spaces.
-	best_width  int          // The preferred width of the output lines.
-	unicode     bool         // Allow unescaped non-ASCII characters?
-	line_break  yaml_break_t // The preferred line break.
-
-	state  yaml_emitter_state_t   // The current emitter state.
-	states []yaml_emitter_state_t // The stack of states.
-
-	events      []yaml_event_t // The event queue.
-	events_head int            // The head of the event queue.
-
-	indents []int // The stack of indentation levels.
-
-	tag_directives []yaml_tag_directive_t // The list of tag directives.
-
-	indent int // The current indentation level.
-
-	flow_level int // The current flow level.
-
-	root_context       bool // Is it the document root context?
-	sequence_context   bool // Is it a sequence context?
-	mapping_context    bool // Is it a mapping context?
-	simple_key_context bool // Is it a simple mapping key context?
-
-	line       int  // The current line.
-	column     int  // The current column.
-	whitespace bool // If the last character was a whitespace?
-	indention  bool // If the last character was an indentation character (' ', '-', '?', ':')?
-	open_ended bool // If an explicit document end is required?
-
-	// Anchor analysis.
-	anchor_data struct {
-		anchor []byte // The anchor value.
-		alias  bool   // Is it an alias?
-	}
-
-	// Tag analysis.
 	tag_data struct {
-		handle []byte // The tag handle.
-		suffix []byte // The tag suffix.
+		handle []byte
+		suffix []byte
 	}
-
-	// Scalar analysis.
 	scalar_data struct {
-		value                 []byte              // The scalar value.
-		multiline             bool                // Does the scalar contain line breaks?
-		flow_plain_allowed    bool                // Can the scalar be expessed in the flow plain style?
-		block_plain_allowed   bool                // Can the scalar be expressed in the block plain style?
-		single_quoted_allowed bool                // Can the scalar be expressed in the single quoted style?
-		block_allowed         bool                // Can the scalar be expressed in the literal or folded styles?
-		style                 yaml_scalar_style_t // The output style.
+		value                 []byte
+		multiline             bool
+		flow_plain_allowed    bool
+		block_plain_allowed   bool
+		single_quoted_allowed bool
+		block_allowed         bool
+		style                 yaml_scalar_style_t
 	}
-
-	// Dumper stuff
-
-	opened bool // If the stream was already opened?
-	closed bool // If the stream was already closed?
-
-	// The information associated with the document nodes.
-	anchors *struct {
-		references int  // The number of references.
-		anchor     int  // The anchor id.
-		serialized bool // If the node has been emitted?
+	anchor_data struct {
+		anchor []byte
+		alias  bool
 	}
-
-	last_anchor_id int // The last assigned anchor id.
-
-	document *yaml_document_t // The currently emitted document.
+	raw_buffer     []byte
+	events         []yaml_event_t
+	buffer         []byte
+	states         []yaml_emitter_state_t
+	tag_directives []yaml_tag_directive_t
+	indents        []int
+	problem        string
+	output_writer  io.Writer
+	line           int
+	best_width     int
+	anchors        *struct {
+		references int
+		anchor     int
+		serialized bool
+	}
+	line_break         yaml_break_t
+	state              yaml_emitter_state_t
+	best_indent        int
+	last_anchor_id     int
+	events_head        int
+	encoding           yaml_encoding_t
+	raw_buffer_pos     int
+	indent             int
+	flow_level         int
+	buffer_pos         int
+	output_buffer      *[]byte
+	write_handler      yaml_write_handler_t
+	column             int
+	error              yaml_error_type_t
+	document           *yaml_document_t
+	simple_key_context bool
+	whitespace         bool
+	indention          bool
+	open_ended         bool
+	mapping_context    bool
+	root_context       bool
+	opened             bool
+	closed             bool
+	unicode            bool
+	canonical          bool
+	sequence_context   bool
 }
